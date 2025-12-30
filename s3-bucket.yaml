@@ -1,0 +1,39 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Lab 1 - S3 Bucket Storage Infrastructure'
+
+Resources:
+  Lab1StorageBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'lab1-bucket-${AWS::AccountId}-${AWS::Region}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+      Tags:
+        - Key: Name
+          Value: Lab1 Storage Bucket
+        - Key: Environment
+          Value: Lab
+        - Key: ManagedBy
+          Value: CloudFormation
+
+Outputs:
+  BucketName:
+    Description: Name of the S3 bucket
+    Value: !Ref Lab1StorageBucket
+    Export:
+      Name: !Sub '${AWS::StackName}-BucketName'
+  
+  BucketArn:
+    Description: ARN of the S3 bucket
+    Value: !GetAtt Lab1StorageBucket.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-BucketArn'
