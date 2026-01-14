@@ -39,7 +39,12 @@ jobs:
           --template-file s3-bucket.yaml \
           --stack-name lab1-stack \
           --no-fail-on-empty-changeset || \
-        (aws cloudformation describe-stack-events --stack-name lab1-stack && exit 1)
+        (echo "Deployment Failed. Fetching errors..." && \
+         aws cloudformation describe-stack-events \
+           --stack-name lab1-stack \
+           --query 'StackEvents[?ResourceStatus==`CREATE_FAILED` || ResourceStatus==`ROLLBACK_IN_PROGRESS` || ResourceStatus==`UPDATE_FAILED`].{Resource:LogicalResourceId,Status:ResourceStatus,Reason:ResourceStatusReason}' \
+           --output table && \
+         exit 1)
 
     - name: Run Tests
       # Env vars are needed for boto3 to pick up credentials/region automatically 
